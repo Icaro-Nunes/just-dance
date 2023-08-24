@@ -4,18 +4,6 @@ import time
 from pose_buffer import PoseBuffer
 import numpy as np
 
-def compare_poses(pose_landmarks1, pose_landmarks2):
-    keypoints1 = np.array([(landmark.x, landmark.y) for landmark in pose_landmarks1.landmark])
-    keypoints2 = np.array([(landmark.x, landmark.y) for landmark in pose_landmarks2.landmark])
-    
-    # Normalize keypoints
-    keypoints1 /= np.linalg.norm(keypoints1, axis=0)
-    keypoints2 /= np.linalg.norm(keypoints2, axis=0)
-    
-    # Calculate cosine similarity
-    similarity_score = np.dot(keypoints1.flatten(), keypoints2.flatten())
-    return similarity_score
-
 def main():
     # Initialize Mediapipe Pose model
     mp_pose = mp.solutions.pose
@@ -29,12 +17,15 @@ def main():
         print("Error: Could not open video.")
         return
 
-    # Capture the video frame rate
-    video_fps = cap.get(cv2.CAP_PROP_FPS)
-
     # Initialize webcam
     webcam = cv2.VideoCapture(0)  # Use the default webcam (change index if you have multiple webcams)
 
+    # Capture the video frame rate
+    video_fps = cap.get(cv2.CAP_PROP_FPS)
+    webcam_fps = webcam.get(cv2.CAP_PROP_FPS)
+
+    print(video_fps, webcam_fps)
+    
     mp_drawing = mp.solutions.drawing_utils
 
     video_buffer = PoseBuffer()
@@ -111,6 +102,18 @@ def main():
     cap.release()
     webcam.release()
     cv2.destroyAllWindows()
+
+def compare_poses(pose_landmarks1, pose_landmarks2):
+    keypoints1 = np.array([(landmark.x, landmark.y) for landmark in pose_landmarks1.landmark])
+    keypoints2 = np.array([(landmark.x, landmark.y) for landmark in pose_landmarks2.landmark])
+    
+    # Normalize keypoints
+    keypoints1 /= np.linalg.norm(keypoints1, axis=0)
+    keypoints2 /= np.linalg.norm(keypoints2, axis=0)
+    
+    # Calculate cosine similarity
+    similarity_score = np.dot(keypoints1.flatten(), keypoints2.flatten())
+    return similarity_score
 
 if __name__ == "__main__":
     main()
